@@ -10,10 +10,7 @@ import logging
 import os
 
 # --- Auto Import All Routers ---
-from app.api import (
-    ai_context, auth, devlog, jarvis, plugin, project, settings,
-    task, team, template, token_refresh, user
-)
+from app import api
 from app.core.settings import settings
 print(settings.DATABASE_URL)
 print(settings.SECRET_KEY)
@@ -24,11 +21,11 @@ API_TITLE = "DevOS Jarvis Web API"
 API_VERSION = "1.0.0"
 
 # --- CORS (можно расширять по нуждам) ---
-origins = [
-    "http://localhost:3000",   # Frontend local
-    "http://127.0.0.1:3000",
-    "https://your-production-frontend.com",
-]
+# origins = [
+#     "http://localhost:3000",   # Frontend local
+#     "http://127.0.0.1:3000",
+#     "https://your-production-frontend.com",
+# ]
 
 app = FastAPI(
     title=API_TITLE,
@@ -39,7 +36,7 @@ app = FastAPI(
 # --- CORS middleware ---
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=settings.ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -52,18 +49,17 @@ app.add_middleware(
 )
 
 # --- Routers ---
-app.include_router(ai_context.router)
-app.include_router(auth.router)
-app.include_router(devlog.router)
-app.include_router(jarvis.router)
-app.include_router(plugin.router)
-app.include_router(project.router)
-app.include_router(settings.router)
-app.include_router(task.router)
-app.include_router(team.router)
-app.include_router(template.router)
-app.include_router(token_refresh.router)
-app.include_router(user.router)
+app.include_router(api.ai_context.router)
+app.include_router(api.auth.router)
+app.include_router(api.devlog.router)
+app.include_router(api.jarvis.router)
+app.include_router(api.plugin.router)
+app.include_router(api.project.router)
+app.include_router(api.settings.router)
+app.include_router(api.task.router)
+app.include_router(api.team.router)
+app.include_router(api.template.router)
+app.include_router(api.user.router)
 
 # --- Healthcheck and Root ---
 @app.get("/", tags=["Health"])

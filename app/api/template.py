@@ -10,7 +10,7 @@ from app.crud.template import (
     get_template,
     get_all_templates,
     update_template,
-    delete_template,
+    soft_delete_template,
     clone_template_to_project,
 )
 from app.dependencies import get_db, get_current_active_user
@@ -92,7 +92,7 @@ def delete_one_template(
     """
     Удалить шаблон.
     """
-    delete_template(db, template_id)
+    soft_delete_template(db, template_id)
     return SuccessResponse(result=template_id, detail="Template deleted")
 
 @router.post("/{template_id}/clone", response_model=SuccessResponse)

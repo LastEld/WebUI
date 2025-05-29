@@ -9,7 +9,7 @@ import logging
 
 logger = logging.getLogger("DevOS.DevLog")
 
-def validate_custom_fields_payload(custom_fields)
+def validate_custom_fields_payload(custom_fields):
     for key, value in custom_fields.items():
         schema = CUSTOM_FIELDS_SCHEMA.get(key)
         if not schema:

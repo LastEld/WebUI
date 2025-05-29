@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.schemas.team import TeamCreate, TeamRead, TeamUpdate
 from app.crud.team import create_team, get_team, get_all_teams, update_team, delete_team, TeamError
-from app.core.dependencies import get_db
+from app.dependencies import get_db
 
 router = APIRouter(prefix="/teams", tags=["Teams"])
 

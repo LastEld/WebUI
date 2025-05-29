@@ -2,11 +2,12 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
-from app.schemas.auth import LoginRequest, LoginResponse, TokenRefreshRequest, TokenRefreshResponse
+from app.schemas.auth import LoginRequest, LoginResponse
+from app.schemas.token_refresh import TokenRefreshRequest, TokenRefreshResponse
 from app.schemas.user import UserRead
 from app.crud.user import authenticate_user, get_user_by_username, set_last_login
 from app.core.security import create_access_token, create_refresh_token, verify_refresh_token
-from app.dependencies import get_db
+from app.dependencies import get_db, get_current_active_user
 from datetime import timedelta
 import os
 
@@ -72,10 +73,9 @@ def logout(
 
 @router.get("/me", response_model=UserRead)
 def get_me(
-    current_user=Depends(get_user_by_username),  # Обычно get_current_active_user
-    db: Session = Depends(get_db)
+    current_user: UserRead = Depends(get_current_active_user)
 ):
-    user = get_user_by_username(db, current_user.username)
-    if not user:
+    # user = get_user_by_username(db, current_user.username) # Not needed, current_user is already the user object
+    if not current_user: # Should be caught by get_current_active_user already
         raise HTTPException(status_code=404, detail="User not found")
-    return user
+    return current_user

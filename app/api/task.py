@@ -5,7 +5,7 @@ from typing import List, Optional, Dict, Any
 from app.schemas.task import (
     TaskCreate, TaskRead, TaskUpdate, TaskShort
 )
-from app.crud.tasks import (
+from app.crud.task import (
     create_task,
     get_task,
     get_all_tasks,

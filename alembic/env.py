@@ -22,7 +22,7 @@ if config.config_file_name is not None:
 
 # Импорт всех моделей только после sys.path.append!
 from app.models.base import Base
-from app import models
+from app import models # This was the original import strategy
 
 # Устанавливаем url для alembic
 config.set_main_option("sqlalchemy.url", os.getenv("DATABASE_URL"))
@@ -39,7 +39,7 @@ def run_migrations_online() -> None:
         context.configure(
             connection=connection,
             target_metadata=target_metadata,
-            compare_type=True,
+            compare_type=True, 
         )
         with context.begin_transaction():
             context.run_migrations()
@@ -51,6 +51,7 @@ def run_migrations_offline() -> None:
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
+        compare_type=True, 
     )
     with context.begin_transaction():
         context.run_migrations()

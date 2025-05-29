@@ -129,3 +129,9 @@ def restore_template(db: Session, template_id: int) -> bool:
         db.rollback()
         logger.error(f"Failed to restore template {template_id}: {e}")
         raise ProjectValidationError("Database error while restoring template.")
+
+def clone_template_to_project(db: Session, template_id: int, target_project_data: dict):
+    # TODO: Implement actual cloning logic
+    # This is a placeholder
+    logger.info(f"Placeholder: Cloning template {template_id} with data {target_project_data}")
+    pass
