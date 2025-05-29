@@ -5,11 +5,6 @@ from sqlalchemy.orm import Session
 from app.schemas.auth import LoginRequest, LoginResponse, TokenRefreshRequest, TokenRefreshResponse
 from app.schemas.user import UserRead
 from app.crud.user import authenticate_user, get_user_by_username, set_last_login
-from app.crud.token_refresh import (
-    create_token_refresh,
-    get_token_by_refresh,
-    deactivate_token,
-)
 from app.core.security import create_access_token, create_refresh_token, verify_refresh_token
 from app.dependencies import get_db
 from datetime import timedelta
@@ -37,12 +32,6 @@ def login(
         data={"sub": user.username, "user_id": user.id},
         expires_delta=timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
     )
-    create_token_refresh(
-        db=db,
-        user_id=user.id,
-        refresh_token=refresh_token,
-        expires_at=None  # Можно добавить expires_at, если нужно
-    )
     set_last_login(db, user.id)
     return LoginResponse(
         access_token=access_token,
@@ -52,17 +41,14 @@ def login(
     )
 
 @router.post("/refresh", response_model=TokenRefreshResponse)
-def refresh_token(
+def refresh_token( #TODO: remove db: Session = Depends(get_db) if not used
     data: TokenRefreshRequest,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db), # Required for get_user_by_username
 ):
-    token_obj = get_token_by_refresh(db, data.refresh_token)
-    if not token_obj or not token_obj.is_active:
-        raise HTTPException(status_code=401, detail="Refresh token invalid or expired")
     payload = verify_refresh_token(data.refresh_token)
     if not payload or "user_id" not in payload:
         raise HTTPException(status_code=401, detail="Invalid refresh token payload")
-    user = get_user_by_username(db, payload["sub"])
+    user = get_user_by_username(db, payload["sub"]) # db is used here
     if not user or not user.is_active:
         raise HTTPException(status_code=401, detail="User not found or inactive")
     new_access_token = create_access_token(
@@ -78,10 +64,10 @@ def refresh_token(
 @router.post("/logout")
 def logout(
     data: TokenRefreshRequest,
-    db: Session = Depends(get_db)
+    # db: Session = Depends(get_db) # db is no longer used
 ):
     # Деактивируем refresh токен (logout only current session)
-    deactivate_token(db, data.refresh_token)
+    # deactivate_token(db, data.refresh_token) # Removed as per requirements
     return {"message": "Logged out successfully"}
 
 @router.get("/me", response_model=UserRead)
